@@ -1,0 +1,722 @@
+/* 1. Create a table called employees with the following structure?
+	: emp_id (integer, should not be NULL and should be a primary key)Q
+	: emp_name (text, should not be NULL)Q
+	: age (integer, should have a check constraint to ensure the age is at least 18)Q
+	: email (text, should be unique for each employee)Q
+	: salary (decimal, with a default value of 30,000).
+
+Write the SQL query to create the above table with all constraints. */
+
+create database Assignment;
+use Assignment;
+create table employee(emp_id int primary key not null,
+emp_name varchar(255) not null,
+age int check(age > 18),
+email varchar(255) unique,
+salary decimal(10,2) default 30000.00 );
+
+select * from employee;
+
+
+/* 2. Explain the purpose of constraints and how they help maintain data integrity in a database. Provide
+examples of common types of constraints.
+ANS. Constraints are rules applied to table columns in a database to ensure the correctness, validity, and consistency of the data.
+They help maintain data integrity by preventing invalid or inconsitant data from being stored in the databse.
+Some common contraints are primary key, foreign kay, not null, unique, check, default etc. 
+
+
+3.  Why would you apply the NOT NULL constraint to a column? Can a primary key contain NULL values? Justify
+your answer.
+ANS. The NOT NULL constraint is applied to a column to ensure that a value must always be provided. It prevent missing or undefined values ,
+which is importent when data is essention for the record. For example employee name must be there in a employee table so we can use NOT NULL
+constraint for the same column.
+No, a primary key can not contain null values because it uniquely identifies each row in a table. We can not uniqely identifies each row without
+without primary key.
+SQL automatically applies both UNIQUE and NOT NULL constraints to a primary key.
+
+
+4.  Explain the steps and SQL commands used to add or remove constraints on an existing table. Provide an
+example for both adding and removing a constraint.
+ANS. We can modify constrains on an existing table using alter table commands
+we can use add constraint to modify with new constraint or we can use drop index to drom any exsisting constrain
+For example. 
+ALTER TABLE employees
+ADD CONSTRAINT unique_email UNIQUE (email);
+ OR
+ALTER TABLE employees
+DROP INDEX unique_email;
+
+
+5. Explain the consequences of attempting to insert, update, or delete data in a way that violates constraints.
+Provide an example of an error message that might occur when violating a constraint.
+ANS. constraints are the rule set on a database to maintain tha data integrity and consistency. If we try to insert, update
+or delete data that voilates the rules, the database will reject the operation and return an error message.
+For Example.
+INSERT INTO employees (emp_id, emp_name, age, email, salary)
+VALUES (102, 'Raj', 25, 'john@example.com', 40000.00);
+below message will appear..
+ERROR 1062 (23000): Duplicate entry 'john@example.com' for key 'unique_email'
+*/
+
+/*6. You created a products table without constraints as follows:
+
+CREATE TABLE products (
+
+    product_id INT,
+
+    product_name VARCHAR(50),
+
+    price DECIMAL(10, 2));
+Now, you realise that?
+: The product_id should be a primary keyQ
+: The price should have a default value of 50.00 
+ANSWER.....*/
+ALTER TABLE products
+add constraint pk_product primary key (product_id);
+
+ALTER TABLE products
+MODIFY price DECIMAL(10,2) DEFAULT 50.00;
+
+/*7. You have two tables:
+
+Write a query to fetch the student_name and class_name for each student using an INNER JOIN */
+create table students(student_id int,
+student_name varchar(255),
+class_id int);
+insert into students(student_id,student_name,class_id) values (1,'Alice',101),
+(2,'Bob',102),(3,'Charlie',101);
+
+
+
+create table classes(class_id int, class_name varchar(255));
+insert into classes (class_id,class_name) values (101,'Math'),
+(102,'Science'),(103,'History');
+
+select * from students;
+
+SELECT s.student_name, c.class_name
+FROM students s
+INNER JOIN classes c
+ON s.class_id = c.class_id;
+
+/*8. Consider the following three tables:
+Write a query that shows all order_id, customer_name, and product_name, ensuring that all products are
+listed even if they are not associated with an order 
+
+Hint: (use INNER JOIN and LEFT JOIN)*/
+-- Answer
+SELECT 
+  o.order_id,
+  c.customer_name,
+  p.product_name
+FROM 
+  products p
+LEFT JOIN orders o ON p.order_id = o.order_id
+LEFT JOIN customers c ON o.customer_id = c.customer_id;
+
+/*9.25 Given the following tables:
+
+Write a query to find the total sales amount for each product using an INNER JOIN and the SUM() function
+*/
+SELECT 
+  p.product_name,
+  SUM(s.amount) AS total_sales
+FROM 
+  products p
+JOIN 
+  sales s ON p.product_id = s.product_id
+GROUP BY 
+  p.product_name;
+
+/*10. You are given three tables:
+Write a query to display the order_id, customer_name, and the quantity of products ordered by each
+customer using an INNER JOIN between all three tables.
+
+
+Note - The above-mentioned questions don't require any dataset.
+*/
+
+SELECT 
+  o.order_id,
+  c.customer_name,
+  od.quantity
+FROM 
+  order_details od
+INNER JOIN orders o ON od.order_id = o.order_id
+INNER JOIN customers c ON o.customer_id = c.customer_id;
+
+-- ******** SQL Commands ************
+use sakila;
+
+-- Q1. Identify the primary keys and foreign keys in maven movies db. Discuss the differences
+
+-- Primary Key (PK): A column that uniquely identifies each record in a table.
+-- Foreign Key (FK): A column that creates a link between two tables by referencing the PK of another table.
+
+-- Examples of Primary Keys:
+-- actor_id in actor
+-- film_id in film
+-- customer_id in customer
+-- rental_id in rental
+-- payment_id in payment
+
+-- Examples of Foreign Keys:
+-- customer.address_id → address(address_id)
+-- rental.customer_id → customer(customer_id)
+-- payment.rental_id → rental(rental_id)
+-- film.language_id → language(language_id)
+-- address.city_id → city(city_id)
+
+-- PKs ensure uniqueness; FKs maintain relationships between tables.
+
+
+-- Q2. List all details of actors
+SELECT * FROM sakila.actor;
+
+
+-- Q3. List all customer information from DB.
+SELECT * FROM sakila.customer;
+
+
+-- Q4. List different countries.
+SELECT country FROM sakila.country;
+
+
+-- Q5. Display all active customers.
+SELECT * FROM sakila.customer
+WHERE active = 1;
+
+
+-- Q6. List of all rental IDs for customer with ID 1.
+SELECT rental_id FROM sakila.rental
+WHERE customer_id = 1;
+
+
+-- Q7. Display all the films whose rental duration is greater than 5.
+SELECT * FROM sakila.film
+WHERE rental_duration > 5;
+
+
+-- Q8. List the total number of films whose replacement cost is greater than $15 and less than $20.
+SELECT COUNT(*) AS total_movies FROM sakila.film
+WHERE replacement_cost > 15 AND replacement_cost < 20;
+
+
+-- Q9. Display the count of unique first names of actors.
+SELECT COUNT(DISTINCT first_name) AS unique_first_names FROM sakila.actor;
+
+
+-- Q10. Display the first 10 records from the customer table.
+SELECT * FROM sakila.customer
+LIMIT 10;
+
+
+-- Q11. Display the first 3 records from the customer table whose first name starts with ‘b’.
+SELECT * FROM sakila.customer
+WHERE first_name LIKE 'b%'
+LIMIT 3;
+
+
+-- Q12. Display the names of the first 5 movies which are rated as ‘G’.
+SELECT title FROM sakila.film
+WHERE rating = 'G'
+LIMIT 5;
+
+
+-- Q13. Find all customers whose first name starts with "a".
+SELECT * FROM sakila.customer
+WHERE first_name LIKE 'a%';
+
+
+-- Q14. Find all customers whose first name ends with "a".
+SELECT * FROM sakila.customer
+WHERE first_name LIKE '%a';
+
+
+-- Q15. Display the list of first 4 cities which start and end with ‘a’.
+SELECT city FROM sakila.city
+WHERE city LIKE 'a%' AND city LIKE '%a'
+LIMIT 4;
+
+
+-- Q16. Find all customers whose first name have "NI" in any position.
+SELECT * FROM sakila.customer
+WHERE first_name LIKE '%NI%';
+
+
+-- Q17. Find all customers whose first name has "r" in the second position.
+SELECT * FROM sakila.customer
+WHERE first_name LIKE '_r%';
+
+
+-- Q18. Find all customers whose first name starts with "a" and are at least 5 characters in length.
+SELECT * FROM sakila.customer
+WHERE first_name LIKE 'a%' AND LENGTH(first_name) >= 5;
+
+
+-- Q19. Find all customers whose first name starts with "a" and ends with "o".
+SELECT * FROM sakila.customer
+WHERE first_name LIKE 'a%' AND first_name LIKE '%o';
+
+
+-- Q20. Get the films with pg and pg-13 rating using IN operator.
+SELECT * FROM sakila.film
+WHERE rating IN ('PG', 'PG-13');
+
+
+-- Q21. Get the films with length between 50 to 100 using BETWEEN operator.
+SELECT * FROM sakila.film
+WHERE length BETWEEN 50 AND 100;
+
+
+-- Q22. Get the top 50 actors using LIMIT operator.
+SELECT * FROM sakila.actor
+LIMIT 50;
+
+
+-- Q23. Get the distinct film ids from inventory table.
+SELECT DISTINCT film_id FROM sakila.inventory;
+
+-- ************************************ Functions ****************************************
+
+-- Basic Aggregate Functions:
+
+-- Question 1:
+-- Retrieve the total number of rentals made in the Sakila database.
+-- Hint: Use the COUNT() function.
+SELECT COUNT(*) AS total_rentals FROM sakila.rental;
+
+
+-- Question 2:
+-- Find the average rental duration (in days) of movies rented from the Sakila database.
+-- Hint: Utilize the AVG() function.
+SELECT AVG(DATEDIFF(return_date, rental_date)) AS avg_rental_duration
+FROM sakila.rental;
+
+
+-- String Functions:
+
+-- Question 3:
+-- Display the first name and last name of customers in uppercase.
+-- Hint: Use the UPPER () function.
+SELECT UPPER(first_name) AS upper_first_name, UPPER(last_name) AS upper_last_name
+FROM sakila.customer;
+
+
+-- Question 4:
+-- Extract the month from the rental date and display it alongside the rental ID.
+-- Hint: Employ the MONTH() function.
+SELECT rental_id, MONTH(rental_date) AS rental_month
+FROM sakila.rental;
+
+
+-- GROUP BY:
+
+-- Question 5:
+-- Retrieve the count of rentals for each customer (display customer ID and the count of rentals).
+-- Hint: Use COUNT () in conjunction with GROUP BY.
+SELECT customer_id, COUNT(rental_id) AS rental_count
+FROM sakila.rental
+GROUP BY customer_id;
+
+
+-- Question 6:
+-- Find the total revenue generated by each store.
+-- Hint: Combine SUM() and GROUP BY.
+SELECT c.store_id, SUM(p.amount) AS total_revenue
+FROM sakila.payment p
+JOIN sakila.customer c ON p.customer_id = c.customer_id
+GROUP BY c.store_id;
+
+
+-- Question 7:
+-- Determine the total number of rentals for each category of movies.
+-- Hint: JOIN film_category, film, and rental tables, then use COUNT () and GROUP BY.
+SELECT cat.name AS category_name, COUNT(r.rental_id) AS total_rentals
+FROM sakila.rental r
+JOIN sakila.inventory i ON r.inventory_id = i.inventory_id
+JOIN sakila.film f ON i.film_id = f.film_id
+JOIN sakila.film_category fc ON f.film_id = fc.film_id
+JOIN sakila.category cat ON fc.category_id = cat.category_id
+GROUP BY cat.name
+ORDER BY total_rentals DESC;
+
+
+-- Question 8:
+-- Find the average rental rate of movies in each language.
+-- Hint: JOIN film and language tables, then use AVG () and GROUP BY.
+SELECT l.name AS language_name, AVG(f.rental_rate) AS avg_rental_rate
+FROM sakila.film f
+JOIN sakila.language l ON f.language_id = l.language_id
+GROUP BY l.name
+ORDER BY avg_rental_rate DESC;
+
+-- *********************************************.......... JOINS...........*********************************************************
+-- Questions 9:
+-- Display the title of the movie, customer s first name, and last name who rented it.
+-- Hint: Use JOIN between the film, inventory, rental, and customer tables.
+
+select f.title, c.first_name, c.last_name
+from sakila.film f 
+join sakila.inventory i on i.film_id = f.film_id
+join sakila.rental r on r.inventory_id = i.inventory_id
+join sakila.customer c on c.customer_id = r.customer_id;
+
+ 
+-- Question 10:
+-- Retrieve the names of all actors who have appeared in the film "Gone with the Wind."
+-- Hint: Use JOIN between the film actor, film, and actor tables.
+ select a.first_name, a.last_name from 
+sakila.film f 
+join sakila.film_actor fa on fa.film_id = f.film_id
+join sakila.actor a on a.actor_id =  fa.actor_id
+where f.title = 'Gone with the Wind';
+ 
+
+-- Question 11:
+-- Retrieve the customer names along with the total amount they've spent on rentals.
+-- Hint: JOIN customer, payment, and rental tables, then use SUM() and GROUP BY.
+
+SELECT c.first_name, c.last_name, SUM(p.amount) AS total_amount
+FROM sakila.customer c
+JOIN sakila.payment p ON p.customer_id = c.customer_id
+GROUP BY c.customer_id;
+
+
+-- *********************************** .......Advanced Joins and GROUP BY:.... *************
+
+-- Question 13:
+-- Display the top 5 rented movies along with the number of times they've been rented.
+-- Hint: JOIN film, inventory, and rental tables, then use COUNT () and GROUP BY, and limit the results.
+select f.film_id,f.title, count(r.rental_id) as rental_count
+from sakila.film f
+join sakila.inventory i on i.film_id = f.film_id
+join sakila.rental r on r.inventory_id = i.inventory_id
+group by f.film_id,f.title
+order by rental_count desc limit 5;
+
+
+-- Question 14:
+-- Determine the customers who have rented movies from both stores (store ID 1 and 2).
+-- Hint: Use JOINS with rental, inventory, and customer tables and consider COUNT() and GROUP BY
+
+SELECT c.customer_id,c.first_name,c.last_name
+FROM sakila.customer c
+JOIN sakila.rental r ON c.customer_id = r.customer_id
+JOIN sakila.inventory i ON r.inventory_id = i.inventory_id
+GROUP BY c.customer_id, c.first_name, c.last_name
+HAVING COUNT(DISTINCT i.store_id) = 2;
+
+
+-- ***********************************************........WINDOWS FUCNTION........************************************
+
+-- Q1. Rank the customers based on the total amount they've spent on rentals.
+select c.customer_id,c.first_name, sum(p.amount) as rental_amount,
+row_number() over (order by sum(p.amount)) as ranked_amount
+from sakila.customer c 
+join sakila.payment p on p.customer_id = c.customer_id
+group by c.customer_id,c.first_name;
+
+-- Q2. Calculate the cumulative revenue generated by each film over time.
+select f.film_id, f.title, date(p.payment_date) as payment_Date ,sum(p.amount)
+over (partition by f.film_id order by p.payment_date) as cumulative_revenue
+from sakila.film f
+JOIN sakila.inventory i ON f.film_id = i.film_id
+JOIN sakila.rental r ON i.inventory_id = r.inventory_id
+JOIN sakila.payment p ON r.rental_id = p.rental_id;
+
+-- Q3. Determine the average rental duration for each film, considering films with similar lengths.
+select f.film_id,f.title,f.length, avg(rental_duration)
+over(partition by f.length ) as avg_rental_duration_for_same_length_group
+from sakila.film f
+order by f.film_id,f.title,f.length;
+ 
+
+-- Q4. Identify the top 3 films in each category based on their rental counts.
+-- Hint: Use JOINs and ROW_NUMBER() with PARTITION BY category, then filter top 3.
+select film_id,title,name, rental_count from
+(select f.film_id as film_id,f.title as title,c.name as name, count(r.rental_id) as rental_count,
+row_number() over(partition by c.name order by count(r.rental_id) desc) as ranked_number
+from sakila.film f
+join sakila.inventory i on i.film_id = f.film_id
+join sakila.rental r on r.inventory_id = i.inventory_id
+join sakila.film_category fc on fc.film_id = f.film_id
+join sakila.category c on c.category_id = fc.category_id
+group by  f.film_id,f.title,c.name
+) as sub_solution
+where ranked_number <= 3;
+
+-- 5. Calculate the difference in rental counts between each customer's total rentals and the average rentals
+-- across all customers.
+
+SELECT 
+  c.customer_id,
+  c.first_name,
+  COUNT(r.rental_id) - (
+    SELECT AVG(rental_count)
+    FROM (
+      SELECT COUNT(r2.rental_id) AS rental_count
+      FROM sakila.customer c2
+      JOIN sakila.rental r2 ON r2.customer_id = c2.customer_id
+      GROUP BY c2.customer_id
+    ) AS avg_counts
+  ) AS rental_diff
+FROM sakila.customer c
+JOIN sakila.rental r ON r.customer_id = c.customer_id
+GROUP BY c.customer_id, c.first_name;
+
+
+-- Q6. Find the monthly revenue trend for the entire rental store over time.
+select Date_format(p.payment_date,'%M-%Y') as Month_Year, sum(p.amount) as monthly_revenue
+from sakila.payment p
+group by Date_format(p.payment_date,'%M-%Y') 
+order by min(p.payment_date);
+
+
+-- Q7. Identify the customers whose total spending on rentals falls within the top 20% of all customers.
+select customer_id , first_name, total_spending from 
+(select c.customer_id as customer_id ,c.first_name as first_name, sum(p.amount) as total_spending,
+percent_rank() over( order by sum(p.amount)) as ranked_percentile
+from sakila.customer c 
+join sakila.rental r on r.customer_id = c.customer_id
+join sakila.payment p on p.rental_id = r.rental_id
+group by c.customer_id,c.first_name
+) as window_table
+where ranked_percentile >= 0.8;
+
+-- Q8. Calculate the running total of rentals per category, ordered by rental count.
+select c.name, r.rental_date ,count(r.rental_id) over (partition by c.name order by r.rental_date) as cumulative_rental_count_per_category
+from sakila.category c
+join sakila.film_category fc on fc.category_id = c.category_id
+join sakila.inventory i on i.film_id  = fc.film_id
+join sakila.rental r on r.inventory_id = i.inventory_id;
+
+
+-- Q9. Find the films that have been rented less than the average rental count for their respective categories.
+SELECT *
+FROM (
+  SELECT 
+    f.film_id,
+    f.title,
+    c.name AS category_name,
+    COUNT(r.rental_id) AS rental_count,
+    AVG(COUNT(r.rental_id)) OVER (PARTITION BY c.category_id) AS avg_rental_count
+  FROM sakila.rental r
+  JOIN sakila.inventory i ON i.inventory_id = r.inventory_id
+  JOIN sakila.film f ON f.film_id = i.film_id
+  JOIN sakila.film_category fc ON fc.film_id = f.film_id
+  JOIN sakila.category c ON c.category_id = fc.category_id
+  GROUP BY f.film_id, f.title, c.name, c.category_id
+) sub
+WHERE rental_count < avg_rental_count;
+
+-- Q10. Identify the top 5 months with the highest revenue and display the revenue generated in each month.
+
+select date_format(payment_date,'%M-%Y')as month_name, sum(amount)
+from sakila.payment
+group by date_format(payment_date,'%M-%Y')
+order by  sum(amount) desc limit 5;
+
+
+-- ***********************   ....Normalisation & CTE.... ****************************
+-- Q1. First Normal Form (1NF):
+--      a. Identify a table in the Sakila database that violates 1NF. Explain how you
+--          would normalize it to achieve 1NF.
+
+-- ANS.  In the Sakila database, the film table violates 1NF due to the special_features column, which stores multiple values 
+--       (like "Deleted Scenes, Commentary") in a single field. To normalize it, we can create a new table film_special_feature with 
+--        each feature as a separate row linked to film_id, thereby ensuring atomicity of values as required in 1NF.
+
+
+--  Q2. Second Normal Form (2NF):
+--  a.  Choose a table in Sakila and describe how you would determine whether it is in 2NF. 
+--      If it violates 2NF, explain the steps to normalize it.
+-- ANS. In the Sakila database, a table that could violate 2NF is a custom example like enrollment, where the primary key 
+--      is composite (student_id, course_id). If non-prime attributes like student_name or course_name depend only on part
+--      of the key (e.g., student_id), it breaks 2NF. To normalize it, we split the table into students, courses, 
+--      and enrollments, so that each non-prime attribute depends on the full primary key or a single key. 
+--      This removes partial dependencies and satisfies 2NF.
+
+
+-- Q3. Third Normal Form (3NF):
+-- a. Identify a table in Sakila that violates 3NF. Describe the transitive dependencies 
+--    present and outline the steps to normalize the table to 3NF.
+
+-- ANS. In the Sakila database, the address table can violate 3NF due to transitive dependency.
+--      The table contains the columns: address_id (PK), address, city_id, and postal_code, among others.
+--      However, city_id indirectly determines country_id via the city table (city_id → country_id).
+--      This creates a transitive dependency: address_id → city_id → country_id.
+
+--      To normalize this into 3NF:
+--      1. We avoid storing country information directly in the address table.
+--      2. Instead, we keep only city_id in the address table.
+--      3. The city table already includes the country_id, so we can retrieve country info by joining.
+
+--      By removing this transitive dependency and keeping only direct dependencies on the primary key,
+--      the address table conforms to 3NF.
+
+  
+-- Q4. Normalization Process:
+--    a. Normalize a table from unnormalized form to 2NF using Sakila context.
+
+-- ANS.   In the Sakila database, assume we have a denormalized table called customer_rental_info
+--    that stores customer details and rented film titles together in one row.
+
+--    UNF Violation: The film_titles column stores multiple movies in one field (e.g., "ALIEN, TOY STORY"),
+--    which violates atomicity. Also, customer_name and address are repeated for each rental.
+
+--    Step 1 - Convert to 1NF:
+--    Break film_titles into separate rows so that each field holds atomic (single) values.
+
+--    Step 2 - Convert to 2NF:
+--    Identify partial dependencies. Customer details depend only on customer_id, not the full primary key.
+--    So, split the data into two tables:
+--      (1) customer table: stores customer_id, customer_name, address
+--      (2) rental_info table: stores rental_id, customer_id, rental_date, and film_title
+
+--    This removes partial dependencies and ensures the structure is in 2NF.
+
+
+-- 5. CTE Basics:
+--  a. Write a query using a CTE to retrieve the distinct list of actor names and the number of films they 
+--  have acted in from the actor and film_actor tables.
+
+with actor_film_count as (select  a.actor_id, a.first_name,a.last_name,count(fa.film_id) as number_of_film from 
+sakila.actor a
+join sakila.film_actor fa on fa.actor_id = a.actor_id
+group by  a.actor_id, a.first_name,a.last_name)
+select * from actor_film_count;
+ 
+-- 6. CTE with Joins:
+--  a. Create a CTE that combines information from the film and language tables to display the film title, 
+--  language name, and rental rate.
+with film_info as (
+select f.title, l.name,f.rental_rate from 
+sakila.film f 
+join sakila.language l on l.language_id = f.language_id
+)
+select * from film_info;
+
+ 
+--  7. CTE for Aggregation:
+--  a. Write a query using a CTE to find the total revenue generated by each customer (sum of payments) 
+--  from the customer and payment tables.
+-- 7. CTE for Aggregation:
+--  a. Total revenue per customer (sum of payments)
+
+WITH customer_revenue AS (
+    SELECT 
+        c.customer_id,
+        c.first_name,
+        c.last_name,
+        SUM(p.amount) AS total_revenue
+    FROM sakila.customer c
+    JOIN sakila.payment p ON c.customer_id = p.customer_id
+    GROUP BY c.customer_id, c.first_name, c.last_name
+)
+
+SELECT * FROM customer_revenue;
+
+ 
+--  8. CTE with Window Functions:
+--  a. Utilize a CTE with a window function to rank films based on their rental duration from the film table.
+with film_ranked_table as(select f.film_id,f.title,f.rental_duration,
+rank() over(order by f.rental_duration desc) as film_rank
+from sakila.film f
+order by f.film_id,f.title,f.rental_duration)
+select * from film_ranked_table
+ORDER BY film_rank;
+
+-- 9. CTE and Filtering:
+--  a. List customers with more than 2 rentals and show their details
+
+WITH frequent_customers AS (
+    SELECT 
+        customer_id,
+        COUNT(rental_id) AS rental_count
+    FROM sakila.rental
+    GROUP BY customer_id
+    HAVING COUNT(rental_id) > 2
+)
+
+SELECT 
+    c.customer_id,
+    c.first_name,
+    c.last_name,
+    c.email,
+    fc.rental_count
+FROM frequent_customers fc
+JOIN sakila.customer c ON fc.customer_id = c.customer_id;
+
+
+-- 10. CTE for Date Calculations:
+--  a. Total number of rentals made each month
+
+WITH monthly_rentals AS (
+    SELECT 
+        DATE_FORMAT(rental_date, '%Y-%m') AS rental_month,
+        COUNT(*) AS total_rentals
+    FROM sakila.rental
+    GROUP BY DATE_FORMAT(rental_date, '%Y-%m')
+)
+
+SELECT * 
+FROM monthly_rentals
+ORDER BY rental_month;
+
+
+
+-- 11. CTE and Self-Join:
+--  a. Create a CTE to generate a report showing pairs of actors who have appeared in the same film 
+--  together, using the film_actor table.
+WITH actor_pairs AS (
+    SELECT 
+        f1.actor_id AS actor1_id,
+        f2.actor_id AS actor2_id,
+        f1.film_id
+    FROM sakila.film_actor f1
+    JOIN sakila.film_actor f2 
+        ON f1.film_id = f2.film_id 
+        AND f1.actor_id < f2.actor_id  -- avoid duplicate & self-pairs
+)
+
+SELECT * FROM actor_pairs
+ORDER BY film_id, actor1_id, actor2_id;
+
+
+-- 12. CTE for Recursive Search:
+--  a. Implement a recursive CTE to find all employees in the staff table who report to a specific manager, 
+--  considering the reports_to column
+-- Step 1: Add the 'reports_to' column to the staff table
+ALTER TABLE sakila.staff ADD COLUMN reports_to INT;
+
+-- Step 2: Insert sample hierarchy (you can adjust as needed)
+-- Assuming staff_id = 1 is the manager of staff_id = 2 and 3
+UPDATE sakila.staff SET reports_to = 1 WHERE staff_id IN (2, 3);
+
+-- Step 3: Create the recursive CTE to find all staff reporting to manager with staff_id = 1
+WITH RECURSIVE employee_hierarchy AS (
+    -- 🔹 Anchor member: direct reports to manager with staff_id = 1
+    SELECT
+        staff_id,
+        first_name,
+        last_name,
+        reports_to
+    FROM sakila.staff
+    WHERE reports_to = 1
+
+    UNION ALL
+
+    -- Recursive member: find staff reporting to those found above
+    SELECT
+        s.staff_id,
+        s.first_name,
+        s.last_name,
+        s.reports_to
+    FROM sakila.staff s
+    JOIN employee_hierarchy eh ON s.reports_to = eh.staff_id
+)
+
+SELECT * FROM employee_hierarchy;
+
+
